@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Simple JD Validator</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f2f2f2;
+    padding:20px;
+}
+
+.container{
+    width:90%;
+    margin:auto;
+}
+
+textarea{
+    width:100%;
+    height:250px;
+    font-size:15px;
+    padding:10px;
+}
+
+button{
+    padding:10px 20px;
+    background:#0078D7;
+    color:white;
+    border:none;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.result{
+    background:white;
+    padding:15px;
+    margin-top:20px;
+    border-radius:8px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td{
+    border:1px solid #ddd;
+    padding:8px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Simple Job Description Validator</h2>
+
+<textarea id="jd" placeholder="Paste Job Description Here..."></textarea>
+
+<br>
+
+<button onclick="analyzeJD()">Analyze JD</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+const roles={
+".net developer":["c#",".net","asp.net","mvc","sql server"],
+"java developer":["java","spring","hibernate"],
+"python developer":["python","django","flask"],
+"full stack developer":["react","angular","node","javascript"],
+"data scientist":["machine learning","python","pandas","numpy"],
+"devops engineer":["docker","kubernetes","jenkins","aws"],
+"qa engineer":["selenium","testing","automation","manual testing"]
+};
+
+function analyzeJD(){
+
+let jd=document.getElementById("jd").value.toLowerCase();
+
+let detectedRoles=[];
+let technologies=[];
+
+let allTech=[];
+
+for(let role in roles){
+
+let count=0;
+
+roles[role].forEach(skill=>{
+
+if(jd.includes(skill)){
+count++;
+technologies.push(skill);
+}
+
+});
+
+if(count>=2){
+detectedRoles.push(role);
+}
+
+}
+
+let experience="Not Found";
+
+let exp=jd.match(/\d+\+?\s*(years|year)/);
+
+if(exp)
+experience=exp[0];
+
+let grade="";
+
+if(detectedRoles.length==1)
+grade="A+ Excellent";
+
+else if(detectedRoles.length==2)
+grade="B Good";
+
+else if(detectedRoles.length>=3)
+grade="D Poor (Cocktail JD)";
+
+else
+grade="C Average";
+
+let extra=[];
+
+technologies=[...new Set(technologies)];
+
+if(detectedRoles.length>0){
+
+let expected=roles[detectedRoles[0]];
+
+technologies.forEach(t=>{
+
+if(!expected.includes(t))
+extra.push(t);
+
+});
+
+let missing=[];
+
+expected.forEach(t=>{
+
+if(!technologies.includes(t))
+missing.push(t);
+
+});
+
+document.getElementById("result").innerHTML=`
+
+<h3>Analysis Result</h3>
+
+<table>
+
+<tr>
+<td><b>Detected Role</b></td>
+<td>${detectedRoles.join(", ")||"Unknown"}</td>
+</tr>
+
+<tr>
+<td><b>Total Roles</b></td>
+<td>${detectedRoles.length}</td>
+</tr>
+
+<tr>
+<td><b>Cocktail JD</b></td>
+<td>${detectedRoles.length>1?"YES":"NO"}</td>
+</tr>
+
+<tr>
+<td><b>JD Grade</b></td>
+<td>${grade}</td>
+</tr>
+
+<tr>
+<td><b>Experience</b></td>
+<td>${experience}</td>
+</tr>
+
+<tr>
+<td><b>Technologies</b></td>
+<td>${technologies.join(", ")}</td>
+</tr>
+
+<tr>
+<td><b>Extra Skills</b></td>
+<td>${extra.join(", ")||"None"}</td>
+</tr>
+
+<tr>
+<td><b>Missing Skills</b></td>
+<td>${missing.join(", ")||"None"}</td>
+</tr>
+
+</table>
+
+`;
+
+}
+else{
+
+document.getElementById("result").innerHTML="<h3>No Matching Job Role Found</h3>";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

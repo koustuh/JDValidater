@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple JD Validator</title>
+<style>
+body{font-family:Arial;background:#f4f4f4;margin:20px}
+textarea{width:100%;height:220px}
+button{padding:10px 16px;margin:8px 4px}
+.card{background:#fff;padding:15px;border-radius:8px;margin-top:15px}
+.bad{color:#c00;font-weight:bold}
+.good{color:#090;font-weight:bold}
+</style>
+</head>
+<body>
+<h2>Simple JD Validator</h2>
+<textarea id="jd" placeholder="Paste Job Description"></textarea><br>
+<button onclick="analyze()">Analyze</button>
+<button onclick="fixJD()">Fix JD</button>
+<button onclick="downloadJD()">Download Fixed JD</button>
+<div class="card" id="out"></div>
+<div class="card">
+<h3>Fixed JD</h3>
+<textarea id="fixed"></textarea>
+</div>
+<script>
+const roles={
+".NET Developer":["c#",".net","asp.net","sql","mvc"],
+"Java Developer":["java","spring","hibernate"],
+"Python Developer":["python","django","flask"],
+"Full Stack Developer":["react","angular","node","javascript"],
+"DevOps Engineer":["docker","kubernetes","jenkins","aws"],
+"QA Engineer":["selenium","testing","automation"]
+};
+function analyze(){
+ let t=document.getElementById("jd").value.toLowerCase();
+ let found=[], tech=[];
+ for(let r in roles){
+   let c=0;
+   roles[r].forEach(s=>{if(t.includes(s)){c++; tech.push(s);}});
+   if(c>=2) found.push(r);
+ }
+ tech=[...new Set(tech)];
+ let grade=found.length==1?"A+":found.length==2?"B":"D";
+ let html="<h3>Analysis</h3>";
+ html+="<p><b>Role:</b> "+(found.join(", ")||"Unknown")+"</p>";
+ html+="<p><b>Roles Found:</b> "+found.length+"</p>";
+ html+="<p><b>Cocktail JD:</b> "+(found.length>1?"<span class='bad'>YES</span>":"<span class='good'>NO</span>")+"</p>";
+ html+="<p><b>Grade:</b> "+grade+"</p>";
+ html+="<p><b>Technologies:</b> "+(tech.join(", ")||"None")+"</p>";
+ if(found.length>1) html+="<p class='bad'>Too many roles detected. Split into separate JDs.</p>";
+ document.getElementById("out").innerHTML=html;
+}
+function fixJD(){
+ let t=document.getElementById("jd").value;
+ t=t.replace(/etc\.?/gi,"");
+ t=t.replace(/good communication skills/gi,"Strong communication skills");
+ document.getElementById("fixed").value=
+"Job Title:\n\nExperience:\n\nResponsibilities:\n- \n- \n\nRequired Skills:\n"+t+"\n\nQualification:\n\nLocation:\n\nSalary:";
+}
+function downloadJD(){
+ let blob=new Blob([document.getElementById("fixed").value],{type:"text/plain"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="Fixed_JD.txt";
+ a.click();
+}
+</script>
+</body>
+</html>
